@@ -2,15 +2,14 @@ require("dotenv").config();
 const nodemailer = require("nodemailer");
 
 module.exports = async (req, res) => {
-  // Vercel ina-allow methods zote, lakini restrict kwa POST tu
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method Not Allowed – Use POST" });
+    return res.status(405).json({ error: "Method Not Allowed – Tumia POST tu" });
   }
 
   const { name, email, message } = req.body;
 
   if (!name || !email || !message) {
-    return res.status(400).json({ error: "All fields are required" });
+    return res.status(400).json({ error: "Jina, email na message zote zinahitajika" });
   }
 
   try {
@@ -23,16 +22,16 @@ module.exports = async (req, res) => {
     });
 
     await transporter.sendMail({
-      from: `"Portfolio" <${process.env.GMAIL_USER}>`,
-      to: process.env.GMAIL_USER,
-      replyTo: email,
-      subject: `New message from ${name}`,
-      text: `From: ${email}\n\nMessage:\n${message}`,
+      from: `"Portfolio Contact" <${process.env.GMAIL_USER}>`,  // au tumia nhonyarichard22@gmail.com direct kama unataka
+      to: process.env.GMAIL_USER || "nhonyarichard22@gmail.com",  // email yako hapa
+      replyTo: email,  // ili ujibu kwa urahisi
+      subject: `Ujumbe mpya kutoka ${name}`,
+      text: `Kutoka: ${email}\n\nUjumbe:\n${message}`,
     });
 
-    return res.status(200).json({ message: "Your message sent successfully" });
+    return res.status(200).json({ message: "Ujumbe wako umetumwa kwa mafanikio" });
   } catch (error) {
-    console.error("Nodemailer error:", error.message);
-    return res.status(500).json({ error: "Failed to send email", details: error.message });
+    console.error("Email error:", error.message);
+    return res.status(500).json({ error: "Tatizo la kutuma email", details: error.message });
   }
 };
