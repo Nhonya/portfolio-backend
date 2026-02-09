@@ -1,14 +1,14 @@
 require("dotenv").config();
-const express = require("express");
 const nodemailer = require("nodemailer");
-const cors = require("cors");
 
-const app = express();
-app.use(cors());
-app.use(express.json());
+module.exports = async (req, res) => {
+  // Vercel ina-allow methods zote, lakini restrict kwa POST tu
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method Not Allowed – Use POST" });
+  }
 
-app.post("/contact", async (req, res) => {
   const { name, email, message } = req.body;
+
   if (!name || !email || !message) {
     return res.status(400).json({ error: "All fields are required" });
   }
@@ -23,18 +23,16 @@ app.post("/contact", async (req, res) => {
     });
 
     await transporter.sendMail({
-      from: email,
+      from: `"Portfolio" <${process.env.GMAIL_USER}>`,
       to: process.env.GMAIL_USER,
-      subject: `Portfolio message from ${name}`,
-      text: message,
+      replyTo: email,
+      subject: `New message from ${name}`,
+      text: `From: ${email}\n\nMessage:\n${message}`,
     });
 
-    res.status(200).json({ message: "Your message sent successfully" });
+    return res.status(200).json({ message: "Your message sent successfully" });
   } catch (error) {
-    console.error("Email error:", error);
-    res.status(500).json({ error: "Failed to send email" });
+    console.error("Nodemailer error:", error.message);
+    return res.status(500).json({ error: "Failed to send email", details: error.message });
   }
-});
-
-// Export app 
-module.exports = app;
+};
