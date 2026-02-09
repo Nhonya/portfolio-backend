@@ -4,13 +4,11 @@ const nodemailer = require("nodemailer");
 const cors = require("cors");
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
 app.post("/contact", async (req, res) => {
   const { name, email, message } = req.body;
-
   if (!name || !email || !message) {
     return res.status(400).json({ error: "All fields are required" });
   }
@@ -31,14 +29,12 @@ app.post("/contact", async (req, res) => {
       text: message,
     });
 
-    res.status(200).json({ message: "You are message sent successfully" });
-
+    res.status(200).json({ message: "Your message sent successfully" });
   } catch (error) {
     console.error("Email error:", error);
     res.status(500).json({ error: "Failed to send email" });
   }
 });
 
-app.listen(3000, () => {
-  console.log("✅ Server running on http://localhost:3000");
-});
+// Export app 
+module.exports = app;
