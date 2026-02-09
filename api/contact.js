@@ -1,15 +1,22 @@
 require("dotenv").config();
+const express = require("express");
 const nodemailer = require("nodemailer");
+const cors = require("cors");
 
-module.exports = async (req, res) => {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method Not Allowed – Tumia POST tu" });
-  }
+const app = express();
+app.use(cors());
+app.use(express.json());
 
+// test route
+app.get("/", (req, res) => {
+  res.send("Contact API iko live 🚀");
+});
+
+app.post("/", async (req, res) => {
   const { name, email, message } = req.body;
 
   if (!name || !email || !message) {
-    return res.status(400).json({ error: "Jina, email na message zote zinahitajika" });
+    return res.status(400).json({ error: "All fields are required" });
   }
 
   try {
@@ -22,16 +29,18 @@ module.exports = async (req, res) => {
     });
 
     await transporter.sendMail({
-      from: `"Portfolio Contact" <${process.env.GMAIL_USER}>`,  // au tumia nhonyarichard22@gmail.com direct kama unataka
-      to: process.env.GMAIL_USER || "nhonyarichard22@gmail.com",  // email yako hapa
-      replyTo: email,  // ili ujibu kwa urahisi
-      subject: `Ujumbe mpya kutoka ${name}`,
-      text: `Kutoka: ${email}\n\nUjumbe:\n${message}`,
+      from: `"${name}" <${process.env.GMAIL_USER}>`,
+      replyTo: email,
+      to: process.env.GMAIL_USER,
+      subject: `Portfolio message from ${name}`,
+      text: message,
     });
 
-    return res.status(200).json({ message: "Ujumbe wako umetumwa kwa mafanikio" });
+    res.status(200).json({ message: "Your message sent successfully" });
   } catch (error) {
-    console.error("Email error:", error.message);
-    return res.status(500).json({ error: "Tatizo la kutuma email", details: error.message });
+    console.error("Email error:", error);
+    res.status(500).json({ error: "Failed to send email" });
   }
-};
+});
+
+module.exports = app;
