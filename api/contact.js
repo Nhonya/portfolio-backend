@@ -17,7 +17,7 @@ app.get("/", (req, res) => {
 });
 
 // Main POST route kwa contact form
-app.post("/contact", async (req, res) => {   // ← Nimebadilisha kuwa /contact ili i-match na frontend yako (API_URL + /contact)
+app.post("/api/contact", async (req, res) => {   // ← Nimebadilisha kuwa /contact ili i-match na frontend yako (API_URL + /contact)
   const { name, email, message } = req.body;
 
   // Simple validation
