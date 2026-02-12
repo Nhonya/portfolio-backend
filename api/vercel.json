@@ -1,12 +1,15 @@
 {
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/contact",
-      "destination": "/api/contact"
-    },
+      "src": "contact.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/api/contact"
+      "src": "/(.*)",
+      "dest": "contact.js"
     }
   ]
 }
