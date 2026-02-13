@@ -7,8 +7,8 @@ const cors = require("cors");
 const app = express();
 
 // Middleware
-app.use(cors());                    // Inaruhusu frontend (Vercel au localhost) ku-access API
-app.use(express.json());            // Inaparse JSON body kutoka frontend
+app.use(cors());                  
+app.use(express.json());           
 
 // Optional: Test route ili ujue server ina-run
 app.get("/", (req, res) => {
@@ -16,7 +16,7 @@ app.get("/", (req, res) => {
 });
 
 // Main POST route kwa contact form
-app.post("/contact", async (req, res) => {   // ← Nimebadilisha kuwa /contact ili i-match na frontend yako (API_URL + /contact)
+app.post("/contact", async (req, res) => {   
   const { name, email, message } = req.body;
 
   // Simple validation
@@ -29,21 +29,19 @@ app.post("/contact", async (req, res) => {   // ← Nimebadilisha kuwa /contact 
     const transporter = nodemailer.createTransport({
       host: "smtp.resend.com",
       port: 465,
-      secure: true,                     // SSL/TLS - muhimu kwa port 465
+      secure: true,                     
       auth: {
-        user: "resend",                 // Fixed username kwa Resend
-        pass: process.env.RESEND_API_KEY,  // ← API Key yako kutoka Resend dashboard
+        user: "resend",                 
+        pass: process.env.RESEND_API_KEY,  
       },
     });
 
     // Send email
     await transporter.sendMail({
-      from: `"${name}" <onboarding@resend.dev>`,  // Default sender kwa free tier (kama bado haijaverify domain)
-      // Kama umeverify domain yako (e.g. hello@richard.dev), badilisha kuwa hiyo
-      // from: `"${name}" <hello@yourdomain.com>`,
+      from: `"${name}" <onboarding@resend.dev>`,  
 
-      replyTo: email,                   // Unapojibu, inaenda kwa sender (muhimu kwa contact form)
-      to: process.env.MY_EMAIL || "your-own-email@gmail.com",  // ← Email yako ya kupokea messages
+      replyTo: email,                   
+      to: process.env.MY_EMAIL || "your-own-email@gmail.com", 
       subject: `New Portfolio Message from ${name}`,
       text: `From: ${name} <${email}>\n\nMessage:\n${message}`,
       
@@ -61,17 +59,9 @@ app.post("/contact", async (req, res) => {   // ← Nimebadilisha kuwa /contact 
     res.status(200).json({ message: "Your message sent successfully!" });
   } catch (error) {
     console.error("Email sending error:", error.message || error);
-    // Rudisha error message rahisi (usitoe full error kwa client kwa usalama)
     res.status(500).json({ error: "Failed to send email. Please try again later." });
   }
 });
 
 // Export app kwa Vercel (serverless)
 module.exports = app;
-
-// Kama unatumia local testing (sio Vercel), uncomment hii:
-// if (require.main === module) {
-//   const PORT = process.env.PORT || 3000;
-//   app.listen(PORT, () => {
-//     console.log(`Server running on http://localhost:${PORT}`);
-//   });
